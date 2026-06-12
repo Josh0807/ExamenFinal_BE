@@ -65,14 +65,20 @@ namespace LibraryService.WebAPI
 
             // 5. Configurar CORS para el FE (Vite dev server)
             services.AddCors(o => o.AddPolicy("Frontend", p => p
-                .WithOrigins("http://localhost:5173")
+                .WithOrigins(
+                    "http://localhost:5173",
+                    "http://localhost:5174",
+                    "http://localhost:5175"
+                )
                 .AllowAnyHeader()
-                .AllowAnyMethod()));
+                .AllowAnyMethod()
+            ));
 
 
             // Add support for Dependency Injection for internal services (BooksService and LibrariesService)
             services.AddTransient<ILibrariesService,  LibrariesService>();
             services.AddTransient<IBooksService,  BooksService>();
+            services.AddTransient<IFraudService, FraudService>();
 
             services.AddDbContextPool<LibraryContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"), npgsqlOptions =>
