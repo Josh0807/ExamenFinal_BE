@@ -63,13 +63,12 @@ namespace LibraryService.WebAPI
             // 4. Configurar Autorizacion
             services.AddAuthorization();
 
-            // 5. Configurar CORS para el FE (Vite dev server)
+            // 5. Configurar CORS para el FE
+            var corsOrigins = Configuration.GetSection("CorsOrigins").Get<string[]>()
+                ?? new[] { "http://localhost:5173" };
+
             services.AddCors(o => o.AddPolicy("Frontend", p => p
-                .WithOrigins(
-                    "http://localhost:5173",
-                    "http://localhost:5174",
-                    "http://localhost:5175"
-                )
+                .WithOrigins(corsOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
             ));
@@ -110,17 +109,25 @@ namespace LibraryService.WebAPI
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
-
-                // Enable middleware to serve generated Swagger as a JSON endpoint.
-                app.UseSwagger();
-
-                // Enable middleware to serve swagger-ui, specifying the Swagger JSON endpoint.
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LibraryService API v1");
-                });
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "LibraryService API v1");
+                c.RoutePrefix = "swagger";
+            });
+
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path == "/")
+                {
+                    context.Response.Redirect("/swagger");
+                    return;
+                }
+
+                await next();
+            });
 
 
 
