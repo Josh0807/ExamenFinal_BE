@@ -21,8 +21,10 @@ jobs:
       - name: Test with .NET
         run: dotnet test --configuration Release --no-build
 
-      - name: Publish
-        run: dotnet publish HackerRank1/HackerRank1.csproj --configuration Release --output ./publish --runtime win-x86 --no-build
+      - name: Publish for MonsterASP (win-x86)
+        run: |
+          dotnet restore HackerRank1/HackerRank1.csproj --runtime win-x86
+          dotnet publish HackerRank1/HackerRank1.csproj --configuration Release --output ./publish --runtime win-x86 --no-restore
 
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
